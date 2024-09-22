@@ -27,7 +27,7 @@ type
   StudStor = record
                FullStr: string;
                Num: integer;
-               Next: Stor;
+               Next: Stor
              end;
 var
   NameOfFile, Str: string;
@@ -87,8 +87,8 @@ begin
       while Temp^.Next <> nil
       do
         Temp := Temp^.Next;
-      Temp^.Next := NewStud;
-    end;
+      Temp^.Next := NewStud
+    end
 ///////////////////////////////////////////////////////
 end;
  
@@ -112,8 +112,8 @@ begin
           if Temp^.Num = Max3
           then
             writeln(FOut, Temp^.FullStr, ' ', (Max3 / 3):0:2);
-      Temp := Temp^.Next; 
-    end;  
+      Temp := Temp^.Next
+    end  
 end;
  
 begin
@@ -182,10 +182,10 @@ begin
           Str := ''; // освобождаем место под другую строку
           Num := 0;
           Count := 0;
-          Marks := 0;
+          Marks := 0
         end
     end;
   writeln('Средние баллы 3-х лучших учеников: ', (Max1 / 3):0:2, ' ', (Max2 / 3):0:2, ' ', (Max3 / 3):0:2);
   PrintStud(FOut);
-  Close(FOut);
+  Close(FOut)
 end.
