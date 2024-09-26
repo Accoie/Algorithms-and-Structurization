@@ -80,7 +80,6 @@ public:
                 delete temp;
             } else {
                 cout << "Шпион #" << first->number << " ушел к резиденту.\n";
-                cout << "huy1";
                 delete first;
                 first = nullptr;
                 last = nullptr;
