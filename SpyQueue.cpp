@@ -73,7 +73,7 @@ public:
                     }
                 }
             }
-            else if (first != last){
+            else if (first != last) {
                 cout << "Шпион #" << first->number << " ушел к резиденту.\n";
                 Spy* temp = first;
                 first = first->next;
@@ -124,18 +124,3 @@ int main()
     }
     return 0;
 }
-/* if (first != nullptr) { 
-    if (first != last) { 
-        last->next = first; 
-        last = first; 
-        first = first->next; 
-        last->next = nullptr; 
-    } else {
-        std::cout << "Шпион понаблюдал" << specTime << " минут" << std::endl;
-        delete first; 
-        first = nullptr; 
-        last = nullptr; 
-        return; 
-    }
-}
-*/
