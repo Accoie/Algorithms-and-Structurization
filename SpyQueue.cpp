@@ -49,43 +49,63 @@ public:
         }
         last = newSpy;
     }
+    void checkSpy(int &curr_time) {
+        if (first->queue_time - curr_time > 0) {
+            curr_time += first->spec_time;
+            first->queue_time += first->spec_time;
+            if (first != nullptr) {
+                if (first != last) {
+                    cout << "Шпион #" << first->number << " понаблюдал за объектом " << first->spec_time << " минут.\n";
+                    last->next = first;
+                    last = first;
+                    first = first->next;
+                    last->next = nullptr;
+                }
+                else {
+                    cout << "Шпион #" << first->number << " понаблюдал за объектом " << first->spec_time << " минут.\n";
+                    delete first;
+                    first = nullptr;
+                    last = nullptr;
+                    return;
+                }
+            }
+        }
+    }
+    void removeTimeOutSpies(int curr_time) {
+        if (first) {
+            Spy* temp_pointer = first;
+            Spy* prev_pointer = nullptr;
+            while (temp_pointer->next != nullptr) {
+                if (temp_pointer->queue_time - curr_time <= 0) {
+                    cout << "Шпион #" << temp_pointer->number << " ушел к президенту.\n";
+                    Spy* pointer_memory = temp_pointer;
+                    if (temp_pointer == first) {
+                        first = first->next;
+                    }
+
+                    temp_pointer = temp_pointer->next;
+                    if (prev_pointer) {
+                        prev_pointer->next = temp_pointer;
+                    }
+                    delete pointer_memory;
+                }
+                else {
+                    prev_pointer = temp_pointer;
+                    temp_pointer = temp_pointer->next;
+                }
+            }
+        }
+    }
     void makeProtocol() {
         int сurr_time = 0;
         while (first != nullptr)
         {
-            if (first->queue_time - сurr_time >= 0) {
-                сurr_time += first->spec_time;
-                first->queue_time += first->spec_time;
-                if (first != nullptr) {
-                    if (first != last) {
-                        cout << "Шпион #" << first->number << " понаблюдал за объектом "<< first->spec_time << " минут.\n";
-                        last->next = first;
-                        last = first;
-                        first = first->next;
-                        last->next = nullptr;
-                    }
-                    else {
-                        cout << "Шпион #" << first->number << " понаблюдал за объектом " << first->spec_time << " минут.\n";
-                        delete first;
-                        first = nullptr;
-                        last = nullptr;
-                        return;
-                    }
-                }
-            }
-            else if (first != last) {
-                cout << "Шпион #" << first->number << " ушел к резиденту.\n";
-                Spy* temp = first;
-                first = first->next;
-                delete temp;
-            } else {
-                cout << "Шпион #" << first->number << " ушел к резиденту.\n";
-                delete first;
-                first = nullptr;
-                last = nullptr;
-                return;
-            }
+            checkSpy(сurr_time);
+            if (first){ 
+                removeTimeOutSpies(сurr_time);
+            }  
         }
+        return;
     }
 };
 
@@ -104,17 +124,19 @@ int main()
         int count = 1;
         while (getline(inFile, line)) {
             int val1, val2 = 1;
+            cout << "Прочитана строка: " "\"" << line << "\"" << endl;
             if (stringstream(line) >> val1 >> val2) {
                 queueSpy.addToQueue(val1, val2, count++);
             }
             else { 
-                cerr << "Строка " "\"" << line << "\"" << " неправильно введена." << endl;
-                cout << "Пример правильного ввода: 30 50\n";
+                cerr << "Строка " "\"" << line << "\"" " неправильно введена.\n";
+                cout << "Пример правильного ввода: 30 50\n\n";
             }
         }
+        cout << "\n";
         inFile.close();
         queueSpy.makeProtocol();
-        cout << "Чтобы продолжить нажмите любую клавишу. (Для выхода нажмите Esc)." << endl;
+        cout << "\n" "Чтобы продолжить нажмите любую клавишу. (Для выхода нажмите Esc).\n\n";
         int key = _getch();
         if (key == 27) {
             cout << "Завершение программы...";
