@@ -66,18 +66,23 @@ private:
             }
         }
     }
-   
-    void findCopiesOfFile(vector<Tree*> elements) {
-        for (Tree* element : elements) {
-            if (isFolder(element)) {
-                findCopiesOfFile(element->sons);
+    vector<Tree*> findFiles(vector<Tree*>elements){
+        vector<Tree*> result = {};
+        for (vector<Tree*>::iterator element = elements.begin(); element != elements.end(); ++element) {
+            if (isFolder(*element)) {
+                result = findFiles((*element)->sons);
             } else {
-
+                result.push_back(*element);
             }
         }
+        return result;
+    }
+    vector<Tree*> filterUniqueFilesMaxDate(vector<Tree*> elements) {
+        return elements;
     }
 
 public:
+    
     /*static FileSystem& getInstance() {
         static FileSystem instance;
         return instance;
@@ -115,7 +120,7 @@ public:
         }
     }
     void processTree() {
-        findCopiesOfFile(roots);
+        filterUniqueFilesMaxDate(findFiles(roots));
     }
     void printTree() {
         for (vector<Tree*>::iterator root = roots.begin(); root != roots.end(); ++root) {       
@@ -183,7 +188,7 @@ int main() {
             }
             cout << "\nИсходное дерево файловой системы:\n";
             infoAboutFiles.printTree();
-            //infoAboutFiles.processTree();
+            infoAboutFiles.processTree();
         }
         if (leaveProgram()) {
             return 0;
