@@ -7,7 +7,7 @@
 Среда выполнения: Visual Studio
 */
 
-
+#include <algorithm>
 #include <iostream>
 #include <locale>
 #include <string>
@@ -77,10 +77,42 @@ private:
         }
         return result;
     }
-    vector<Tree*> filterUniqueFilesMaxDate(vector<Tree*> elements) {
-        return elements;
+    bool compareByDataName(const Tree* &x, const Tree* &y) {
+        if (x->name != y->name) {
+            return x->name < y->name;
+        } else {
+            return x->date > y->date;
+        }
     }
-
+    vector<Tree*> filterUniqueFilesMaxDate(vector<Tree*> elements) {
+        sort(elements.begin(), elements.end(), compareByDataName);
+        vector<Tree*>uniqueFiles;
+        for (Tree* element : elements) {
+            if (uniqueFiles.empty() || element != uniqueFiles.back()) {
+                uniqueFiles.push_back(element);
+            }
+        }
+        return uniqueFiles;
+    }
+    void deleteFileFromFolder(Tree* file) {
+        
+    }
+    
+    void deleteCopiesOfFiles(vector<Tree*> uniqueFiles, vector<Tree*> &elements) {
+        for (Tree* element : elements) {
+            if (isFolder(element)) {
+                deleteCopiesOfFiles(uniqueFiles, element->sons);
+            } else {
+                auto it = find(uniqueFiles.begin(), uniqueFiles.end(), element);
+                if (it == uniqueFiles.end()) {
+                    elements.erase(remove_if(elements.begin(), elements.end(), [&element](const Tree* &x) { return x == element; }));
+                    delete element;
+                } else {
+                    uniqueFiles.erase(it);
+                }
+            }
+        }
+    }
 public:
     
     /*static FileSystem& getInstance() {
@@ -120,7 +152,7 @@ public:
         }
     }
     void processTree() {
-        filterUniqueFilesMaxDate(findFiles(roots));
+        deleteCopiesOfFiles(filterUniqueFilesMaxDate(findFiles(roots)), roots);
     }
     void printTree() {
         for (vector<Tree*>::iterator root = roots.begin(); root != roots.end(); ++root) {       
