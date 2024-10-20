@@ -66,50 +66,72 @@ private:
             }
         }
     }
-    vector<Tree*> findFiles(vector<Tree*>elements){
-        vector<Tree*> result = {};
+    vector<Tree*> findFiles(vector<Tree*> result, vector<Tree*> elements) {
         for (vector<Tree*>::iterator element = elements.begin(); element != elements.end(); ++element) {
             if (isFolder(*element)) {
-                result = findFiles((*element)->sons);
+                result = findFiles(result, (*element)->sons);
             } else {
                 result.push_back(*element);
             }
         }
         return result;
     }
-    bool compareByDataName(const Tree* &x, const Tree* &y) {
+    static bool compareByDataName(const Tree* x, const Tree* y) {
         if (x->name != y->name) {
             return x->name < y->name;
         } else {
             return x->date > y->date;
         }
     }
-    vector<Tree*> filterUniqueFilesMaxDate(vector<Tree*> elements) {
+    vector<Tree*> filterUniqueFilesMaxDate(vector<Tree*> &elements) { 
         sort(elements.begin(), elements.end(), compareByDataName);
         vector<Tree*>uniqueFiles;
         for (Tree* element : elements) {
-            if (uniqueFiles.empty() || element != uniqueFiles.back()) {
+            if (uniqueFiles.empty() || element->name != uniqueFiles.back()->name) {
                 uniqueFiles.push_back(element);
             }
         }
         return uniqueFiles;
     }
-    void deleteFileFromFolder(Tree* file) {
-        
-    }
-    
-    void deleteCopiesOfFiles(vector<Tree*> uniqueFiles, vector<Tree*> &elements) {
-        for (Tree* element : elements) {
-            if (isFolder(element)) {
-                deleteCopiesOfFiles(uniqueFiles, element->sons);
+    // поменять date на полноценную дату
+    void deleteCopiesOfFiles(vector<Tree*> &uniqueFiles, vector<Tree*> &elements) {
+        for (int i = 0; i != elements.size();) {
+            if (isFolder(elements[i])) {
+                   
+                deleteCopiesOfFiles(uniqueFiles, elements[i]->sons);
+                ++i;
             } else {
-                auto it = find(uniqueFiles.begin(), uniqueFiles.end(), element);
+                auto it = find(uniqueFiles.begin(), uniqueFiles.end(), elements[i]);
                 if (it == uniqueFiles.end()) {
-                    elements.erase(remove_if(elements.begin(), elements.end(), [&element](const Tree* &x) { return x == element; }));
-                    delete element;
+                    //Tree* temp = elements[i];
+                    //elements.erase(remove_if(elements.begin(), elements.end(), [&temp](const Tree* x) { return x == temp; }));
+                    delete elements[i];
+                    elements.erase(elements.begin() + i);
+                    //Tree* temp = elements[i];
                 } else {
                     uniqueFiles.erase(it);
+                    ++i;
                 }
+            }
+        }
+    }
+    void deleteEmptyFolders(vector<Tree*>& elements) {
+        for (int i = 0; i != elements.size();) {
+            if (isFolder(elements[i])) {
+                if (elements[i]->sons.empty()) {
+                    delete elements[i];
+                    elements.erase(elements.begin() + i);    
+                } else {
+                    deleteEmptyFolders(elements[i]->sons);
+                    if (elements[i]->sons.empty()) {
+                        delete elements[i];
+                        elements.erase(elements.begin() + i);
+                    } else {
+                        ++i;
+                    }       
+                }  
+            } else {
+                ++i;
             }
         }
     }
@@ -131,11 +153,12 @@ public:
             prev = new_node;
         } else if (new_node->level < prev->level) {
             Tree* ptr = prev->fath;
-            while (ptr->level > new_node->level) {
+            while (ptr->level >= new_node->level) {
                 ptr = ptr->fath;
             }
             ptr->sons.push_back(new_node);
             new_node->fath = ptr;
+            prev = new_node;
         } else if (new_node->level > prev->level && isFolder(prev)) {
             if (prev == roots.back()) {
                 prev->sons.push_back(new_node);
@@ -152,7 +175,11 @@ public:
         }
     }
     void processTree() {
-        deleteCopiesOfFiles(filterUniqueFilesMaxDate(findFiles(roots)), roots);
+        vector<Tree*> result = {};
+        vector<Tree*> files = findFiles(result, roots);
+        vector<Tree*> uniqueFiles = filterUniqueFilesMaxDate(files);
+        deleteCopiesOfFiles(uniqueFiles, roots);
+        deleteEmptyFolders(roots);
     }
     void printTree() {
         for (vector<Tree*>::iterator root = roots.begin(); root != roots.end(); ++root) {       
@@ -221,6 +248,8 @@ int main() {
             cout << "\nИсходное дерево файловой системы:\n";
             infoAboutFiles.printTree();
             infoAboutFiles.processTree();
+            cout << "\nДерево после удаления копий файлов и пустых папок:\n";
+            infoAboutFiles.printTree();
         }
         if (leaveProgram()) {
             return 0;
