@@ -16,32 +16,6 @@
 #include <map>
 
 
-class Graph {
-private:
-    std::vector<std::vector<int>> matrixOfWeight;
-    std::map<int, std::string> nameOfVertex;
-    
-public:
-    Graph() {
-        matrixOfWeight = std::vector<std::vector<int>>();
-        nameOfVertex = std::map<int, std::string>();
-    }
-    void makeVertex(int id, std::string name) {
-        nameOfVertex[id] = name;
-    }
-    void addToMatrixOfValue(int row, int col, int weight) {
-        if (row >= matrixOfWeight.size()) {
-            matrixOfWeight.resize(row + 1);
-        }
-        if (col >= matrixOfWeight[row].size()) {
-            matrixOfWeight[row].resize(col + 1);
-        }
-        matrixOfWeight[row][col] = weight;
-    }
-    void findShortestPath() {
-
-    }
-};
 bool leaveProgram() {
     std::cout << "\n" "Чтобы продолжить нажмите любую клавишу. (Для выхода нажмите Esc).\n\n";
     int key = _getch();
@@ -50,26 +24,32 @@ bool leaveProgram() {
         return true;
     }
     return false;
-} 
+}
+void findMaxWeightPath() {
+
+}
 int main() {
     setlocale(LC_ALL, "RU.UTF8");
     while (true) {
         std::ifstream inFile("i1.txt");
         std::string line;
-        Graph NewGraph;
-        while (getline(inFile, line)) {
-            int id = 0;
-            std::string name = "";
+        int id = 0;
+        std::string name = "";
+        
+        std::map<int, std::string> vertex_names;
+        while (getline(inFile, line)) {         
             std::istringstream(line) >> id >> name;
-            NewGraph.makeVertex(id, name);
+            vertex_names[id] = name;
         }
         inFile.close();
         std::ifstream iFile("i2.txt");
+        std::vector<std::vector<int>> matrixOfWeight(id + 1, std::vector<int>(id + 1));
         while (getline(iFile, line)) {
             int first = 0; int second = 0; int weight = 0;
             std::istringstream(line) >> first >> second >> weight;
-            NewGraph.addToMatrixOfValue(first, second, weight);
+            matrixOfWeight[first][second] = weight;
         }
+        findMaxWeightPath();
         if (leaveProgram()) {
             return 0;
         }
