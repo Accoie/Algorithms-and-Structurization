@@ -29,15 +29,15 @@ bool leaveProgram() {
 }
 struct Vertex {
     int prev_vertex;
-    int temp_mark;
-    Vertex() : prev_vertex(0), temp_mark(-1) {};
+    int mark;
+    Vertex() : prev_vertex(0), mark(-1) {};
 };
 int findMaxMark(std::vector<Vertex> marks, std::vector<Vertex> result_marks) {
-    int max = marks[0].temp_mark;
+    int max = marks[0].mark;
     int num = 0;
     for (int i = 1; i != marks.size(); ++i) {
-        if (marks[i].temp_mark > max && result_marks[i].temp_mark == -1) {
-            max = marks[i].temp_mark;
+        if (marks[i].mark > max && result_marks[i].mark == -1) {
+            max = marks[i].mark;
             num = i;
         }
     }
@@ -49,33 +49,54 @@ int min(int a, int b) {
 int max(int a, int b) {
     return a > b ? a : b;
 }
-int changeTempMarks(int num_last_result_mark, std::vector<Vertex> result_marks, std::vector<Vertex>& temp_marks, std::vector<std::vector<int>>matrixOfWeight) {
+int changeTempMarks(int num_last_result_mark, std::vector<Vertex> result_marks, std::vector<Vertex> &temp_marks, std::vector<std::vector<int>>matrixOfWeight) {
     for (int i = 1; i != matrixOfWeight[num_last_result_mark].size(); ++i) {
-        int M = min(result_marks[num_last_result_mark].temp_mark, matrixOfWeight[num_last_result_mark][i]);
-        int D = max(M, temp_marks[i].temp_mark);
-        M > temp_marks[i].temp_mark ? temp_marks[i].prev_vertex = i : 0;
+        if (i != num_last_result_mark && matrixOfWeight[num_last_result_mark][i] != 0) {
+            int M = min(result_marks[num_last_result_mark].mark, matrixOfWeight[num_last_result_mark][i]);
+            temp_marks[i].mark = max(M, temp_marks[i].mark);
+            M = temp_marks[i].mark ? temp_marks[i].prev_vertex = num_last_result_mark : 0;
+        }
     }
+    return 0;
 }
 std::vector<Vertex> findMaxWeight(int path_begin, int path_end, std::vector<std::vector<int>>matrixOfWeight) {
     std::vector<Vertex> temp_marks = {};
     for (int i = 0; i != matrixOfWeight.size(); ++i) {
         temp_marks.push_back({});
         if (i == path_begin) {
-            temp_marks[i].temp_mark = INFINITY_INT;
+            temp_marks[i].mark = INFINITY_INT;
         }
     }
     std::vector<Vertex> result_marks = temp_marks;
-    int num_last_result_mark = path_begin;
-    while (result_marks[path_end].temp_mark == -1) {
-        if (num_last_result_mark == path_begin) {
-            changeTempMarks(num_last_result_mark, result_marks, temp_marks, matrixOfWeight);
-        } else {
-            num_last_result_mark = findMaxMark(temp_marks, result_marks);
-            result_marks[num_last_result_mark] = temp_marks[num_last_result_mark];
+    int num_last_result = path_begin;
+    int count = 0;
+    while (result_marks[path_end].mark == -1) { 
+        changeTempMarks(num_last_result, result_marks, temp_marks, matrixOfWeight);
+        num_last_result = findMaxMark(temp_marks, result_marks);
+        result_marks[num_last_result] = temp_marks[num_last_result];
+        std::cout << "Шаг " << ++count << ": ";
+        if (result_marks[path_end].mark != -1) {
+            result_marks = temp_marks;
         }
-        
-        result_marks[num_last_result_mark].temp_mark;
+        for (int i = 1; i != temp_marks.size(); ++i) {
+            if (result_marks[i].mark != -1) {
+                if (result_marks[i].mark == INFINITY_INT) {
+                    std::cout << "C[" << i << "] = " << "INF" << " ";
+                } else {
+                    std::cout << "C[" << i << "] = " << result_marks[i].mark << "(" << result_marks[i].prev_vertex << ")" << "  ";
+                }
+            } else {
+                if (temp_marks[i].mark == -1) {
+                    std::cout << "D[" << i << "] = " << temp_marks[i].mark << "  ";
+                } else {
+                    std::cout << "D[" << i << "] = " << temp_marks[i].mark << "(" << temp_marks[i].prev_vertex << ")" << "  ";
+                }
+                
+            }    
+        }
+        std::cout << "\n\n";
     }
+    result_marks = temp_marks;
     return result_marks;
 }
 int main() {
@@ -101,7 +122,9 @@ int main() {
         std::cout << "Введите начальную и конечную вершину. Максимальная вершина: " << id << std::endl;
         int path_begin, path_end;
         std::cin >> path_begin >> path_end;
-        findMaxWeight(path_begin, path_end, matrixOfWeight);
+        std::vector<Vertex> max_weight = findMaxWeight(path_begin, path_end, matrixOfWeight);
+        std::cout << "\nМаксимальный груз между городом " << vertex_names[path_begin] << " и " 
+                  << vertex_names[path_end] << " = " << max_weight[path_end].mark << "\n\n";
         if (leaveProgram()) {
             return 0;
         }
