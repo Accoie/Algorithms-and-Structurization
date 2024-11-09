@@ -54,7 +54,10 @@ int changeTempMarks(int num_last_result_mark, std::vector<Vertex> result_marks, 
         if (i != num_last_result_mark && matrixOfWeight[num_last_result_mark][i] != 0) {
             int M = min(result_marks[num_last_result_mark].mark, matrixOfWeight[num_last_result_mark][i]);
             temp_marks[i].mark = max(M, temp_marks[i].mark);
-            M = temp_marks[i].mark ? temp_marks[i].prev_vertex = num_last_result_mark : 0;
+            if (temp_marks[i].mark == M) {
+                temp_marks[i].prev_vertex = num_last_result_mark;
+            }
+           
         }
     }
     return 0;
@@ -128,20 +131,16 @@ std::vector<Vertex> findMaxWeight(int path_begin, int path_end, std::vector<std:
     result_marks = temp_marks;
     return result_marks;
 }
-void print(int path_begin, Vertex &temp, std::vector<Vertex> &weights) {
+void printRoute(Vertex &temp, std::vector<Vertex> &weights, std::map<int, std::string> names) {
     if (temp.prev_vertex != 0) {
         int n = temp.prev_vertex;
         temp = weights[temp.prev_vertex];
-        print(path_begin, temp, weights);
-        std::cout << n << "->";
+        printRoute(temp, weights, names);
+        std::cout << names[n] << "->";
     }
     return;
 }
-void printRoute(int path_begin, int path_end, std::vector<Vertex> &weights) {
-    print(path_begin, weights[path_end], weights);
-    std::cout << path_end;
-    return;
-}
+
 int main() {
     setlocale(LC_ALL, "RU.UTF8");
     while (true) {
@@ -173,7 +172,8 @@ int main() {
                 std::cout << "\nМаксимальный груз между городом " << vertex_names[path_begin] << " и "
                     << vertex_names[path_end] << " = " << result_weights[path_end].mark;
                 std::cout << "\nМаршрут: ";
-                printRoute(path_begin, path_end, result_weights);
+                printRoute(result_weights[path_end],result_weights, vertex_names);
+                std::cout << vertex_names[path_end];
             }
         } else {
             std::cout << "Начальная или конечная вершина не найдена в списке городов.\n\n";
