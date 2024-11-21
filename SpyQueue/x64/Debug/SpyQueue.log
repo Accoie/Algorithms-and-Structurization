@@ -1,0 +1,3 @@
+﻿  Source.cpp
+C:\cpp projects\SpyQueue\SpyQueue\src\Source.cpp(91,20): warning C4267: инициализация: преобразование из "size_t" в "int"; возможна потеря данных
+  SpyQueue.vcxproj -> C:\cpp projects\SpyQueue\x64\Debug\SpyQueue.exe
