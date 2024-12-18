@@ -1,3 +1,2 @@
 # Algorithms-and-Structurization
-
-look lab's branches
+look labs, there are 5 labs
