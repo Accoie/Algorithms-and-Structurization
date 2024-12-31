@@ -1,8 +1,7 @@
 # Algorithms-and-Structurization
+**Look lab's branches**
 
-
-<p class = "green">look labs, there are 5 labs</p>
-- [x]  BestStudents
+- [x] BestStudents - 1 lab
 - [x] SpyQueue - 2 lab
 - [x] FileSystem - 3 lab
 - [x] MaxWeightDijkstra - 4 lab
